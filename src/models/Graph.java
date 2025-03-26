@@ -41,23 +41,23 @@ public class Graph<T> {
         return null;
     }
 
-    // Checks if an edge already exists by origin and destination vertices value
-    // Returns true if edge with corresponding values and false if not
-    private boolean edgeExists(T valueOrigin, T valueDest) {
+    // Searches for edge in the existing edges list by origin and destination value
+    // Returns the found vertex- if not found returns null
+    public Edge<T> findEdge(T valueOrigin, T valueDest) {
+        // Check if there's an edge already connecting these values
         for (Edge<T> edge : edges) {
-            // Check if there's an edge already connecting these values
             if (edge.getOrigin().getValue().equals(valueOrigin) && edge.getDest().getValue().equals(valueOrigin)) {
-                return true;
+                return edge;
             }
         }
-        return false;
+        return null;
     }
 
     // Checks validity of data and existance of such edges and creates and edge if
     // all data is valid
     public void addEdge(T valueOrigin, T valueDest, int weight) {
         // Check for duplicate edge or invalid weight (under zero)
-        if (edgeExists(valueOrigin, valueDest) || weight < 0)
+        if (findEdge(valueOrigin, valueDest) != null || weight < 0)
             return;
 
         // Check if origin vertex already exists in the graph

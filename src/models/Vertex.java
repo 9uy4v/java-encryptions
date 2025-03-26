@@ -54,8 +54,16 @@ public class Vertex<T> implements Comparable<Vertex<T>> {
         this.minDistance = minDistance;
     }
 
+    public List<Vertex<T>> getIncoming() {
+        return incomingVertices;
+    }
+
     public void addIncoming(Vertex<T> v) {
         incomingVertices.add(v);
+    }
+
+    public List<Vertex<T>> getOutgoing() {
+        return outgoingVertices;
     }
 
     public void addOutgoing(Vertex<T> v) {
@@ -65,5 +73,14 @@ public class Vertex<T> implements Comparable<Vertex<T>> {
     @Override
     public int compareTo(Vertex<T> other) {
         return this.minDistance.compareTo(other.getMinDist());
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof Vertex<?>) {
+            Vertex<?> v = (Vertex<?>) other;
+            return this.value.equals(v.value);
+        }
+        return false;
     }
 }
