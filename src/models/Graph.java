@@ -1,5 +1,6 @@
 package models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Graph<T> {
@@ -7,7 +8,24 @@ public class Graph<T> {
     private List<Edge<T>> edges;
 
     public Graph() {
-        // TODO : init lists
+        vertices = new ArrayList<Vertex<T>>();
+        edges = new ArrayList<Edge<T>>();
+    }
+
+    public List<Vertex<T>> getVertices() {
+        return vertices;
+    }
+
+    public void setVertices(List<Vertex<T>> vertices) {
+        this.vertices = vertices;
+    }
+
+    public List<Edge<T>> getEdges() {
+        return edges;
+    }
+
+    public void setEdges(List<Edge<T>> edges) {
+        this.edges = edges;
     }
 
     // Searches for vertex in the existing vertices list by value

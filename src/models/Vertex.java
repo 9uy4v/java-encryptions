@@ -1,8 +1,9 @@
 package models;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class Vertex<T> {
+public class Vertex<T> implements Comparable<Vertex<T>> {
     private T value;
 
     private Vertex<T> prevVertex; // Reference to previous Vertex
@@ -15,6 +16,10 @@ public class Vertex<T> {
     public Vertex() {
         prevVertex = null;
         minDistance = Integer.MAX_VALUE;
+
+        incomingVertices = new ArrayList<Vertex<T>>();
+        outgoingVertices = new ArrayList<Vertex<T>>();
+
     }
 
     public Vertex(T value) {
@@ -41,7 +46,7 @@ public class Vertex<T> {
         this.prevVertex = prevVertex;
     }
 
-    public int getMinDist() {
+    public Integer getMinDist() {
         return minDistance;
     }
 
@@ -55,5 +60,10 @@ public class Vertex<T> {
 
     public void addOutgoing(Vertex<T> v) {
         outgoingVertices.add(v);
+    }
+
+    @Override
+    public int compareTo(Vertex<T> other) {
+        return this.minDistance.compareTo(other.getMinDist());
     }
 }
