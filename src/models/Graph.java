@@ -46,7 +46,7 @@ public class Graph<T> {
     public Edge<T> findEdge(T valueOrigin, T valueDest) {
         // Check if there's an edge already connecting these values
         for (Edge<T> edge : edges) {
-            if (edge.getOrigin().getValue().equals(valueOrigin) && edge.getDest().getValue().equals(valueOrigin)) {
+            if (edge.getOrigin().getValue().equals(valueOrigin) && edge.getDest().getValue().equals(valueDest)) {
                 return edge;
             }
         }
@@ -88,4 +88,13 @@ public class Graph<T> {
         edges.add(newEdge); // add new edge to graph's list
     }
 
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+
+        for (Vertex<T> v : vertices) {
+            s.append(v);
+        }
+        return s.toString();
+    }
 }

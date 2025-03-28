@@ -83,4 +83,14 @@ public class Vertex<T> implements Comparable<Vertex<T>> {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        s.append("Vertex: " + value);
+        s.append(" Min distance: " + minDistance);
+        s.append("\n");
+
+        return s.toString();
+    }
 }

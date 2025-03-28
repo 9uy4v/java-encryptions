@@ -35,4 +35,14 @@ public class Edge<T> {
         this.weight = weight;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+
+        s.append("Origin: " + origin.getValue());
+        s.append(" Dest: " + dest.getValue());
+        s.append(" Weight: " + weight);
+
+        return s.toString();
+    }
 }

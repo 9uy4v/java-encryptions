@@ -2,8 +2,17 @@ import models.*;
 
 import java.util.PriorityQueue;
 
-class MainDijkstra<T> {
-    public void Dijkstra(Graph<T> graph, Vertex<T> sourceVertex) {
+class MainDijkstra {
+    public static void main(String[] args) {
+        Graph<String> g = new Graph<String>();
+        // Create Graph here
+
+        MainDijkstra.Dijkstra(g, g.getVertices().get(0));
+
+        System.out.println(g);
+    }
+
+    public static <T> void Dijkstra(Graph<T> graph, Vertex<T> sourceVertex) {
         // Minimal heap storing to be visited vertices ordered by minimal known reach
         // distance
         PriorityQueue<Vertex<T>> pq = new PriorityQueue<Vertex<T>>();
