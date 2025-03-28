@@ -4,9 +4,13 @@ import java.util.PriorityQueue;
 
 class MainDijkstra<T> {
     public void Dijkstra(Graph<T> graph, Vertex<T> sourceVertex) {
+        // Minimal heap storing to be visited vertices ordered by minimal known reach
+        // distance
         PriorityQueue<Vertex<T>> pq = new PriorityQueue<Vertex<T>>();
 
+        // Adding to priority queue all of the graph's vertices
         for (Vertex<T> vertex : graph.getVertices()) {
+            // source vertex gets a distance of 0, others get max value
             if (vertex.equals(sourceVertex))
                 vertex.setMinDist(0);
             else
@@ -17,17 +21,22 @@ class MainDijkstra<T> {
         }
 
         while (!pq.isEmpty()) {
-            Vertex<T> currentVertex = pq.poll();
+            Vertex<T> currentVertex = pq.poll(); // Get Vertex with minimal known reach distance
 
+            // Passing over outgoing-connection's destination vertices that weren't visited
             for (Vertex<T> outgoingVertex : currentVertex.getOutgoing()) {
                 if (pq.contains(outgoingVertex)) {
+                    // Get relevant connecting edge
                     Edge<T> connectingEdge = graph.findEdge(currentVertex.getValue(), outgoingVertex.getValue());
 
-                    int currentWeight = currentVertex.getMinDist() + connectingEdge.getWeight();
+                    // The destination vertex's distance from the source via the current vertex
+                    int altOutgoingDist = currentVertex.getMinDist() + connectingEdge.getWeight();
 
-                    if (currentWeight < outgoingVertex.getMinDist()) {
+                    // If the alt distance is smaller than the minimal distance to reach the
+                    // destination node update the vertex and the priority queue
+                    if (altOutgoingDist < outgoingVertex.getMinDist()) {
                         pq.remove(outgoingVertex);
-                        outgoingVertex.setMinDist(currentWeight);
+                        outgoingVertex.setMinDist(altOutgoingDist);
                         outgoingVertex.setPrev(currentVertex);
                         pq.add(outgoingVertex);
                     }
