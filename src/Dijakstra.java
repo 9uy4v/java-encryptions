@@ -14,12 +14,15 @@ class DijkstraEncryption {
     }
 
     public static String keyByFile(File f) {
-        // TODO : implement
-        return "error";
+        return null;
     }
 
     public static void generateGraphByFile(File f) {
+        byte[] chunks = new byte[(int) (f.getTotalSpace() / 256) + 1];
 
+        for (byte b : chunks) {
+
+        }
     }
 
     private static <T> void dijkstra(Graph<T> graph, Vertex<T> sourceVertex) {
@@ -69,13 +72,15 @@ class DijkstraEncryption {
 /// ENCRYPTION LOGIC
 /// 1. BUILD GRAPH BY FILE
 ///
-/// VERTEX : each vertex will contain the content of its designaetd chunk
+/// VERTEX : each vertex will contain the content of its designaetd 128bits
+/// chunk
 ///
 /// EDGE : connection between chunks will be to the next chunk and to vertices
 /// with same reminder after division by a certain number
 /// (TODO : decide on number - deriven? salt?)
+/// suggestion: if 32 MSB bits are the same
 ///
-/// WEIGHT : will be xor of the origin and destination chunk
+/// WEIGHT : will be xor of the origin and destination chunk's 16 LSB
 ///
 /// 2. GET ENCRYPTION KEY BY GRAPH
 /// use dijkstra's algorithm on graph and get a key by the order of the
