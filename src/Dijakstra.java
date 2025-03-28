@@ -1,18 +1,28 @@
 import models.*;
 
+import java.io.File;
 import java.util.PriorityQueue;
 
-class MainDijkstra {
+class DijkstraEncryption {
     public static void main(String[] args) {
         Graph<String> g = new Graph<String>();
         // Create Graph here
 
-        MainDijkstra.Dijkstra(g, g.getVertices().get(0));
+        DijkstraEncryption.dijkstra(g, g.getVertices().get(0));
 
         System.out.println(g);
     }
 
-    public static <T> void Dijkstra(Graph<T> graph, Vertex<T> sourceVertex) {
+    public static String keyByFile(File f) {
+        // TODO : implement
+        return "error";
+    }
+
+    public static void generateGraphByFile(File f) {
+
+    }
+
+    private static <T> void dijkstra(Graph<T> graph, Vertex<T> sourceVertex) {
         // Minimal heap storing to be visited vertices ordered by minimal known reach
         // distance
         PriorityQueue<Vertex<T>> pq = new PriorityQueue<Vertex<T>>();
@@ -55,3 +65,45 @@ class MainDijkstra {
 
     }
 }
+
+/// ENCRYPTION LOGIC
+/// 1. BUILD GRAPH BY FILE
+///
+/// VERTEX : each vertex will contain the content of its designaetd chunk
+///
+/// EDGE : connection between chunks will be to the next chunk and to vertices
+/// with same reminder after division by a certain number
+/// (TODO : decide on number - deriven? salt?)
+///
+/// WEIGHT : will be xor of the origin and destination chunk
+///
+/// 2. GET ENCRYPTION KEY BY GRAPH
+/// use dijkstra's algorithm on graph and get a key by the order of the
+/// vertices.
+/// TODO : KEY NEEDS TO BE A SET SIZE
+///
+/// 3. USE KEY TO ENCRYPT FILE
+/// TODO : think of encryption logic
+///
+/// 4. GET KEY BY ENCRYPTED FILE
+/// repeat steps 1 and 2 but on the encrypted file.
+/// then xor between the decrypted file key and the encrypted file key to get a
+/// final key
+///
+/// 5. CONSTRUCT FINAL ENCRYPTED FILE
+/// add the key and file together (maybe in a more complex way than concat)
+/// TODO : order final key and encrypted file
+///
+/// DECRYPTION LOGIC
+/// 1. GET KEY AND FILE
+/// seperate the given key and the encrypted file bytes
+///
+/// 2. GET KEY BY ENCRYPTED FILE
+/// run the file through the graph building and dijkstra to get the second key
+/// generated in the encryption process
+/// then xor the result (key from encrypted file) and the given key to get the
+/// key from the decrypted file
+///
+/// 3. DECRYPT USING KEY
+/// using the result of the last step we have hte key from the decrypted file
+/// and we can now decrypt the file
