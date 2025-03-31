@@ -53,6 +53,21 @@ public class Graph<T> {
         return null;
     }
 
+    // Adds vertex to the graph if it doesn't exist yet
+    public Vertex<T> addVertex(T value) {
+        // Check if vertex already exists in the graph
+        Vertex<T> v = findVertex(value);
+
+        if (v == null) {
+            // if vertex doesn't exist- create one and add it to the list of vetices
+            // in the graph
+            v = new Vertex<T>(value);
+            vertices.add(v);
+        }
+        // Returns the new vertex or exisiting vertex
+        return v;
+    }
+
     // Checks validity of data and existance of such edges and creates and edge if
     // all data is valid
     public void addEdge(T valueOrigin, T valueDest, int weight) {
@@ -60,25 +75,9 @@ public class Graph<T> {
         if (findEdge(valueOrigin, valueDest) != null || weight < 0)
             return;
 
-        // Check if origin vertex already exists in the graph
-        Vertex<T> origin = findVertex(valueOrigin);
+        Vertex<T> origin = addVertex(valueOrigin);
 
-        if (origin == null) {
-            // if origin vertex doesn't exist- create one and add it to the list of vetices
-            // in the graph
-            origin = new Vertex<T>(valueOrigin);
-            vertices.add(origin);
-        }
-
-        // Check if destination vertex already exists in the graph
-        Vertex<T> dest = findVertex(valueDest);
-
-        if (dest == null) {
-            // if destination vertex doesn't exist- create one and add it to the list of
-            // vetices in the graph
-            dest = new Vertex<T>(valueDest);
-            vertices.add(dest);
-        }
+        Vertex<T> dest = addVertex(valueDest);
 
         // Create a new edge
         Edge<T> newEdge = new Edge<T>(origin, dest, weight);

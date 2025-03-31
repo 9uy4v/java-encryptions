@@ -1,28 +1,90 @@
 import models.*;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.DataInputStream;
 import java.util.PriorityQueue;
+import java.util.List;
 
 class DijkstraEncryption {
     public static void main(String[] args) {
-        Graph<String> g = new Graph<String>();
-        // Create Graph here
+        File f = new File("assets\\image.png");
+        String key = generateKeyByFile(f);
+        // System.out.println(key);
+    }
 
-        DijkstraEncryption.dijkstra(g, g.getVertices().get(0));
-
+    public static String generateKeyByFile(File f) {
+        StringBuilder key = new StringBuilder();
+        Graph<Integer> g = generateGraphByFile(f);
         System.out.println(g);
+        dijkstra(g, g.getVertices().getFirst());
+
+        List<Vertex<Integer>> orderedVertices = g.getVertices();
+        PriorityQueue<Integer> pq = new PriorityQueue<Integer>();
+
+        for (Vertex<Integer> vertex : orderedVertices) {
+            pq.add(vertex.getValue());
+        }
+
+        while (!pq.isEmpty()) {
+
+            key.append(Integer.toHexString(pq.poll()));
+        }
+
+        return key.toString();
     }
 
-    public static String keyByFile(File f) {
-        return null;
-    }
+    private static Graph<Integer> generateGraphByFile(File f) {
+        int bufferSize = (int) (f.length() / 4); // Each chunk is 32bit (4 bytes)
+        Integer[] chunkBuffer = new Integer[bufferSize];
+        Graph<Integer> g = new Graph<Integer>();
 
-    public static void generateGraphByFile(File f) {
-        byte[] chunks = new byte[(int) (f.getTotalSpace() / 256) + 1];
+        try (DataInputStream dis = new DataInputStream(new FileInputStream(f))) {
+            // Move 4 bytes at a time to the buffer
+            int index = 0;
+            while (dis.available() >= 4) {
+                chunkBuffer[index++] = dis.readInt();
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
 
-        for (byte b : chunks) {
+        for (int chunk : chunkBuffer) {
+            List<Vertex<Integer>> existingVertices = g.getVertices();
+            short newLsb16 = (short) chunk; // the 16 less significant bits
+            short newMsb16 = (short) (chunk >>> 16); // the 16 most significant bits
+
+            if (existingVertices.isEmpty()) {
+                g.addVertex(chunk); // Adds first vertex
+                continue;
+            }
+
+            Vertex<Integer> lastVertex = existingVertices.getLast();
+
+            // Create an edge originating from the last added vertex to the newly added
+            // vertex (to keep the graph connected between all of it's vertices)
+            g.addEdge(lastVertex.getValue(), chunk, chunk ^ lastVertex.getValue());
+
+            for (Vertex<Integer> vertex : existingVertices) {
+                int vertexValue = vertex.getValue();
+                short curLsb16 = (short) vertexValue; // the 16 less significant bits
+                short curMsb16 = (short) (vertexValue >>> 16); // the 16 most significant bits
+
+                // if the bottom half of the value
+                if (curLsb16 == newLsb16) {
+                    int weight = chunk ^ vertexValue;
+                    if (curMsb16 < newMsb16) {
+                        g.addEdge(chunk, vertexValue, weight);
+                    } else if (curMsb16 > newMsb16) {
+                        g.addEdge(vertexValue, chunk, weight);
+                    }
+                    // else they are the same and we don't want self connections
+                }
+            }
 
         }
+
+        return g;
     }
 
     private static <T> void dijkstra(Graph<T> graph, Vertex<T> sourceVertex) {
@@ -72,13 +134,12 @@ class DijkstraEncryption {
 /// ENCRYPTION LOGIC
 /// 1. BUILD GRAPH BY FILE
 ///
-/// VERTEX : each vertex will contain the content of its designaetd 128bits
+/// VERTEX : each vertex will contain the content of its designated 32bit
 /// chunk
 ///
 /// EDGE : connection between chunks will be to the next chunk and to vertices
 /// with same reminder after division by a certain number
-/// (TODO : decide on number - deriven? salt?)
-/// suggestion: if 32 MSB bits are the same
+/// suggestion: if 16 MSB bits are the same
 ///
 /// WEIGHT : will be xor of the origin and destination chunk's 16 LSB
 ///
