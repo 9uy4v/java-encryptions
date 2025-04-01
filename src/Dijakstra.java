@@ -10,25 +10,22 @@ class DijkstraEncryption {
     public static void main(String[] args) {
         File f = new File("assets\\image.png");
         String key = generateKeyByFile(f);
-        // System.out.println(key);
+        System.out.println(key);
     }
 
     public static String generateKeyByFile(File f) {
         StringBuilder key = new StringBuilder();
         Graph<Integer> g = generateGraphByFile(f);
-        System.out.println(g);
         dijkstra(g, g.getVertices().getFirst());
 
-        List<Vertex<Integer>> orderedVertices = g.getVertices();
-        PriorityQueue<Integer> pq = new PriorityQueue<Integer>();
+        PriorityQueue<Vertex<Integer>> pq = new PriorityQueue<Vertex<Integer>>();
 
-        for (Vertex<Integer> vertex : orderedVertices) {
-            pq.add(vertex.getValue());
+        for (Vertex<Integer> vertex : g.getVertices()) {
+            pq.add(vertex);
         }
 
         while (!pq.isEmpty()) {
-
-            key.append(Integer.toHexString(pq.poll()));
+            key.append(Integer.toHexString(pq.poll().getValue()));
         }
 
         return key.toString();
@@ -63,7 +60,7 @@ class DijkstraEncryption {
 
             // Create an edge originating from the last added vertex to the newly added
             // vertex (to keep the graph connected between all of it's vertices)
-            g.addEdge(lastVertex.getValue(), chunk, chunk ^ lastVertex.getValue());
+            g.addEdge(lastVertex.getValue(), chunk, newMsb16 ^ (lastVertex.getValue() >>> 16));
 
             for (Vertex<Integer> vertex : existingVertices) {
                 int vertexValue = vertex.getValue();
@@ -72,7 +69,7 @@ class DijkstraEncryption {
 
                 // if the bottom half of the value
                 if (curLsb16 == newLsb16) {
-                    int weight = chunk ^ vertexValue;
+                    int weight = newMsb16 ^ curMsb16;
                     if (curMsb16 < newMsb16) {
                         g.addEdge(chunk, vertexValue, weight);
                     } else if (curMsb16 > newMsb16) {
