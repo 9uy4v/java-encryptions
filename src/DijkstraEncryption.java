@@ -4,11 +4,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.DataInputStream;
 import java.util.PriorityQueue;
+import java.util.Arrays;
 import java.util.List;
 
 class DijkstraEncryption {
     public static void main(String[] args) {
-        File f = new File("assets\\image.png");
+        File f = new File("assets\\test2.pdf");
         String key = generateKeyByFile(f);
         System.out.println(key);
     }
@@ -16,26 +17,42 @@ class DijkstraEncryption {
     public static String generateKeyByFile(File f) {
         StringBuilder key = new StringBuilder();
         Graph<Integer> g = generateGraphByFile(f);
+        System.out.println("Running Dijkstra");
         dijkstra(g, g.getVertices().getFirst());
+        System.out.println("Dijkstra Finished!");
 
         PriorityQueue<Vertex<Integer>> pq = new PriorityQueue<Vertex<Integer>>();
 
+        System.out.println("Sorting results...");
         for (Vertex<Integer> vertex : g.getVertices()) {
             pq.add(vertex);
         }
 
+        System.out.println("Xor Folding the Key");
+        Integer[] keyBuffer = new Integer[8];
+        Arrays.fill(keyBuffer, 0);
+
         while (!pq.isEmpty()) {
-            key.append(Integer.toHexString(pq.poll().getValue()));
+            for (int i = 0; i < 8 && !pq.isEmpty(); i++) {
+                keyBuffer[i] ^= pq.poll().getValue();
+            }
         }
 
+        for (int i = 0; i < 8; i++) {
+            key.append(String.format("%08x", keyBuffer[i]));
+        }
+
+        System.out.println(("Key Generation Complete!"));
         return key.toString();
     }
 
     private static Graph<Integer> generateGraphByFile(File f) {
+        System.out.println("Generating Graph by File:");
         int bufferSize = (int) (f.length() / 4); // Each chunk is 32bit (4 bytes)
         Integer[] chunkBuffer = new Integer[bufferSize];
         Graph<Integer> g = new Graph<Integer>();
 
+        System.out.println("\tLoading Data Chunks from File...");
         try (DataInputStream dis = new DataInputStream(new FileInputStream(f))) {
             // Move 4 bytes at a time to the buffer
             int index = 0;
@@ -46,7 +63,12 @@ class DijkstraEncryption {
             System.out.println(e);
         }
 
+        System.out.println("\tConnecting Vertices...");
+        System.out.println();
+        int i = 0;
         for (int chunk : chunkBuffer) {
+            System.out.print("\033[1A\033[2K"); // Move up 1 line and clear it
+            System.out.printf("\tCreating Chunk (%d/%d)\n", i, chunkBuffer.length);
             List<Vertex<Integer>> existingVertices = g.getVertices();
             short newLsb16 = (short) chunk; // the 16 less significant bits
             short newMsb16 = (short) (chunk >>> 16); // the 16 most significant bits
@@ -78,8 +100,12 @@ class DijkstraEncryption {
                     // else they are the same and we don't want self connections
                 }
             }
+            // System.out.print("\033[1A\033[2K"); // Move up 1 line and clear it
 
+            i++;
         }
+
+        System.out.println("Graph Building Complete!");
 
         return g;
     }
