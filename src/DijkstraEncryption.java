@@ -9,7 +9,7 @@ import java.util.List;
 
 class DijkstraEncryption {
     public static void main(String[] args) {
-        File f = new File("assets\\test2.pdf");
+        File f = new File("assets\\test.png");
         String key = generateKeyByFile(f);
         System.out.println(key);
     }
@@ -48,11 +48,13 @@ class DijkstraEncryption {
 
     private static Graph<Integer> generateGraphByFile(File f) {
         System.out.println("Generating Graph by File:");
+
         int bufferSize = (int) (f.length() / 4); // Each chunk is 32bit (4 bytes)
         Integer[] chunkBuffer = new Integer[bufferSize];
         Graph<Integer> g = new Graph<Integer>();
 
         System.out.println("\tLoading Data Chunks from File...");
+
         try (DataInputStream dis = new DataInputStream(new FileInputStream(f))) {
             // Move 4 bytes at a time to the buffer
             int index = 0;
@@ -63,12 +65,16 @@ class DijkstraEncryption {
             System.out.println(e);
         }
 
+        Integer[] foldedChunks = foldChunks(chunkBuffer);
+
         System.out.println("\tConnecting Vertices...");
         System.out.println();
-        int i = 0;
-        for (int chunk : chunkBuffer) {
+
+        int i = 1;
+
+        for (int chunk : foldedChunks) {
             System.out.print("\033[1A\033[2K"); // Move up 1 line and clear it
-            System.out.printf("\tCreating Chunk (%d/%d)\n", i, chunkBuffer.length);
+            System.out.printf("\t\tChunk (%d/%d)\n", i, foldedChunks.length);
             List<Vertex<Integer>> existingVertices = g.getVertices();
             short newLsb16 = (short) chunk; // the 16 less significant bits
             short newMsb16 = (short) (chunk >>> 16); // the 16 most significant bits
@@ -100,14 +106,28 @@ class DijkstraEncryption {
                     // else they are the same and we don't want self connections
                 }
             }
-            // System.out.print("\033[1A\033[2K"); // Move up 1 line and clear it
-
             i++;
         }
 
         System.out.println("Graph Building Complete!");
 
         return g;
+    }
+
+    private static Integer[] foldChunks(Integer[] arr) {
+        System.out.println("\tXor Folding the File...");
+        Integer[] chunkBuffer = new Integer[64000];
+        Arrays.fill(chunkBuffer, 0);
+
+        int i = 0;
+
+        while (i < arr.length) {
+            for (int j = 0; j < 64000 && i < arr.length; i++, j++) {
+                chunkBuffer[j] ^= arr[i];
+            }
+        }
+
+        return chunkBuffer;
     }
 
     private static <T> void dijkstra(Graph<T> graph, Vertex<T> sourceVertex) {
