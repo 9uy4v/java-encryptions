@@ -1,4 +1,4 @@
-package models;
+package dijkstra.models;
 
 public class Edge<T> {
     private int weight;

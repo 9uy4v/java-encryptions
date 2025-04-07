@@ -1,9 +1,12 @@
-import models.*;
+package dijkstra;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.DataInputStream;
 import java.util.PriorityQueue;
+
+import dijkstra.models.*;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -189,7 +192,6 @@ class DijkstraEncryption {
 /// 2. GET ENCRYPTION KEY BY GRAPH
 /// use dijkstra's algorithm on graph and get a key by the order of the
 /// vertices.
-/// TODO : KEY NEEDS TO BE A SET SIZE
 ///
 /// 3. USE KEY TO ENCRYPT FILE
 /// TODO : think of encryption logic
