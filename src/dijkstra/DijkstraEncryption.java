@@ -119,13 +119,13 @@ class DijkstraEncryption {
 
     private static Integer[] foldChunks(Integer[] arr) {
         System.out.println("\tXor Folding the File...");
-        Integer[] chunkBuffer = new Integer[64000];
+        Integer[] chunkBuffer = new Integer[8000];
         Arrays.fill(chunkBuffer, 0);
 
         int i = 0;
 
         while (i < arr.length) {
-            for (int j = 0; j < 64000 && i < arr.length; i++, j++) {
+            for (int j = 0; j < chunkBuffer.length && i < arr.length; i++, j++) {
                 chunkBuffer[j] ^= arr[i];
             }
         }
