@@ -41,6 +41,10 @@ public class SimGraph {
         return board;
     }
 
+    public int getSize() {
+        return numOfVertices;
+    }
+
     public void reset() {
         for (int i = 0; i < numOfVertices; i++) {
             Arrays.fill(board[i], PlayerCode.None);
