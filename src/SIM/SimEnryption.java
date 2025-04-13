@@ -1,13 +1,22 @@
 package SIM;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import SIM.models.PlayerCode;
 import SIM.models.SimGraph;
 
 public class SimEnryption {
+    static int SIZE = 6;
 
     public static void main(String[] args) {
-        SimGraph game = new SimGraph(6);
+        SimGraph game = generateGameByFile(new File("assets\\test2.pdf").toPath());
         PlayerCode result = PlayerCode.None;
+
+        System.out.println("============Game Start=============");
 
         while (result == PlayerCode.None) {
             result = takeTurn(game, PlayerCode.PlayerOne);
@@ -19,6 +28,44 @@ public class SimEnryption {
         }
 
         System.out.println(result + " WON!!!");
+    }
+
+    private static SimGraph generateGameByFile(Path path) {
+        byte[] movesBuffer = new byte[SIZE * SIZE];
+        SimGraph game = new SimGraph(SIZE);
+
+        try (InputStream in = Files.newInputStream(path)) {
+            in.read(movesBuffer);
+        } catch (IOException e) {
+            System.out.println("Couldn't read the file : " + e);
+            System.out.println("Returning empty game board");
+            return game;
+        }
+
+        for (int i = 0; i < movesBuffer.length; i++) {
+            byte curMove = movesBuffer[i];
+
+            int a = (curMove >> 5) & 0b111; // 3 leftmost bits
+            int b = curMove & 0b111; // 3 rightmost bits
+            int playerBits = (curMove >> 3) & 0b11; // 2 middle bits
+
+            PlayerCode player = switch (playerBits) {
+                case 0b10 -> PlayerCode.PlayerOne;
+                case 0b11 -> PlayerCode.PlayerTwo;
+                default -> null;
+            };
+
+            if (player == null || a >= SIZE || b >= SIZE || a == b)
+                continue;
+
+            PlayerCode[][] board = game.getBoard();
+
+            if (board[a][b] == PlayerCode.None && !wouldCreateTriangle(board, a, b, player)) {
+                game.connect(a, b, player);
+            }
+        }
+
+        return game;
     }
 
     private static PlayerCode takeTurn(SimGraph game, PlayerCode curPlayer) {
@@ -51,7 +98,7 @@ public class SimEnryption {
     private static int evaluateMove(PlayerCode[][] board, int a, int b, PlayerCode curPlayer) {
         int score = 1000;
 
-        int degreeA = 0, degreeB = 0;
+        int degreeA = 0, degreeB = 0; // The amount of edges connected to a and b
         for (int i = 0; i < board.length; i++) {
             if (board[a][i] == curPlayer)
                 degreeA++;

@@ -22,6 +22,8 @@ public class SimGraph {
         board[source][destination] = playerCode;
         board[destination][source] = playerCode;
 
+        System.out.println(source + " <-> " + destination + " : " + playerCode);
+
         // Check if move was game ending
         for (int i = 0; i < numOfVertices; i++) {
             if (source == i || destination == i)
