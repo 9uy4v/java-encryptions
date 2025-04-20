@@ -15,22 +15,25 @@ public class SimEnryption {
     public static void main(String[] args) {
         SimGraph game = generateGameByFile(new File("assets\\test2.pdf").toPath());
         PlayerCode result = PlayerCode.None;
+        StringBuilder key = new StringBuilder();
 
         System.out.println("============Game Start=============");
 
         while (result == PlayerCode.None) {
-            result = takeTurn(game, PlayerCode.PlayerOne);
+            result = takeTurn(game, PlayerCode.PlayerOne, key);
 
             if (result != PlayerCode.None)
                 break;
 
-            result = takeTurn(game, PlayerCode.PlayerTwo);
+            result = takeTurn(game, PlayerCode.PlayerTwo, key);
         }
 
         System.out.println(result + " WON!!!");
+        System.out.println(key);
     }
 
     private static SimGraph generateGameByFile(Path path) {
+        System.out.println("============Graph Generation=============");
         byte[] movesBuffer = new byte[SIZE * SIZE];
         SimGraph game = new SimGraph(SIZE);
 
@@ -68,9 +71,16 @@ public class SimEnryption {
         return game;
     }
 
-    private static PlayerCode takeTurn(SimGraph game, PlayerCode curPlayer) {
+    private static PlayerCode takeTurn(SimGraph game, PlayerCode curPlayer, StringBuilder key) {
         int[] move = nextMove(game, curPlayer);
-        return game.connect(move[0], move[1], curPlayer);
+        PlayerCode res = game.connect(move[0], move[1], curPlayer);
+
+        if (res != null) {
+            key.append(move[0]);
+            key.append(move[1]);
+        }
+
+        return res;
     }
 
     private static int[] nextMove(SimGraph game, PlayerCode curPlayer) {
