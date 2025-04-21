@@ -68,7 +68,7 @@ class DijkstraEncryption {
             System.out.println(e);
         }
 
-        Integer[] foldedChunks = foldChunks(chunkBuffer);
+        Integer[] foldedChunks = foldChunks(chunkBuffer, 8000);
 
         System.out.println("\tConnecting Vertices...");
         System.out.println();
@@ -117,9 +117,9 @@ class DijkstraEncryption {
         return g;
     }
 
-    private static Integer[] foldChunks(Integer[] arr) {
+    private static Integer[] foldChunks(Integer[] arr, int size) {
         System.out.println("\tXor Folding the File...");
-        Integer[] chunkBuffer = new Integer[8000];
+        Integer[] chunkBuffer = new Integer[size];
         Arrays.fill(chunkBuffer, 0);
 
         int i = 0;
