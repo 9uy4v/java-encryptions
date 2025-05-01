@@ -13,7 +13,13 @@ public class SimEnryption {
     static int SIZE = 6;
 
     public static void main(String[] args) {
-        SimGraph game = generateGameByFile(new File("assets\\test2.pdf").toPath());
+        File f = new File("assets\\test2.pdf");
+
+        System.out.println(generateKeyByFile(f));
+    }
+
+    private static String generateKeyByFile(File f) {
+        SimGraph game = generateGameByFile(f.toPath());
         PlayerCode result = PlayerCode.None;
         StringBuilder key = new StringBuilder();
 
@@ -29,7 +35,8 @@ public class SimEnryption {
         }
 
         System.out.println(result + " WON!!!");
-        System.out.println(key);
+
+        return key.toString();
     }
 
     private static SimGraph generateGameByFile(Path path) {
