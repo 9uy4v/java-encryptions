@@ -5,6 +5,10 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import dijkstra.DijkstraEncryption;
+import SIM.SimEnryption;
+import gould.GouldEncryption;
+
 public class Main extends JFrame {
 
 	public void menu() {
@@ -14,6 +18,9 @@ public class Main extends JFrame {
 				"Encryption Menu",
 				JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
 				new ImageIcon("assets/image.png"), options, options[0]);
+
+		if (response == 6)
+			System.exit(0);
 
 		JFileChooser ch0 = new JFileChooser();
 		int r0 = ch0.showOpenDialog(this);
@@ -26,43 +33,40 @@ public class Main extends JFrame {
 					System.exit(0);
 
 				case 0:
-					ee.easyEncryptFile(f); // TODO : replace with respective encryption function
+					DijkstraEncryption.encrypt(f);
 
 					menu();
 					break;
 
 				case 1:
-					ee.easyDecryptFile(f); // TODO : replace with respective decryption function
+					DijkstraEncryption.decrypt(f);
 
 					menu();
 					break;
 
 				case 2:
-					ee.easyEncryptFile(f); // TODO : replace with respective encryption function
+					SimEnryption.encrypt(f);
 
 					menu();
 					break;
 
 				case 3:
-					ee.easyDecryptFile(f); // TODO : replace with respective decryption function
+					SimEnryption.decrypt(f);
 
 					menu();
 					break;
 
 				case 4:
-					ee.easyEncryptFile(f); // TODO : replace with respective encryption function
+					GouldEncryption.encrypt(f);
 
 					menu();
 					break;
 
 				case 5:
-					ee.easyDecryptFile(f); // TODO : replace with respective decryption function
+					GouldEncryption.decrypt(f);
 
 					menu();
 					break;
-
-				case 6:
-					System.exit(0);
 
 				default:
 					break;

@@ -10,14 +10,31 @@ import dijkstra.models.*;
 import java.util.Arrays;
 import java.util.List;
 
-class DijkstraEncryption {
+public class DijkstraEncryption {
     public static void main(String[] args) {
         File f = new File("assets\\test.png");
         String key = generateKeyByFile(f);
         System.out.println(key);
     }
 
-    public static String generateKeyByFile(File f) {
+    public static void encrypt(File f) {
+        System.out.println("dijakstra encryption");
+
+        String oKey = generateKeyByFile(f);
+        // TODO : encrypt using key
+    }
+
+    public static void decrypt(File f) {
+        System.out.println("dijakstra decryption");
+        String mixedKey; // TODO : first 32 bytes
+        String eKey = generateKeyByFile(f); // TODO : file without first 32 bytes
+
+        // String oKey = (int)mixedKey ^ (int)eKey; // TODO : make this work
+
+        // TODO : decrypt using original key
+    }
+
+    private static String generateKeyByFile(File f) {
         StringBuilder key = new StringBuilder();
         Graph<Integer> g = generateGraphByFile(f);
         System.out.println("Running Dijkstra");

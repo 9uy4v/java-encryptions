@@ -18,6 +18,17 @@ public class SimEnryption {
         System.out.println(generateKeyByFile(f));
     }
 
+    public static void encrypt(File f) {
+        System.out.println("SIM encryption");
+        String oKey = generateKeyByFile(f);
+        // TODO : encrypt using key
+    }
+
+    public static void decrypt(File f) {
+        System.out.println("SIM decryption");
+        // TODO : decrypt
+    }
+
     private static String generateKeyByFile(File f) {
         SimGraph game = generateGameByFile(f.toPath());
         PlayerCode result = PlayerCode.None;

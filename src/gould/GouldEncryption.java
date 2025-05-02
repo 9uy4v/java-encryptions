@@ -5,11 +5,22 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
 
-public class GouldSequence {
+public class GouldEncryption {
     public static void main(String[] args) {
 
         File f = new File("assets\\test.png");
         System.err.println(generateKeyByFile(f));
+    }
+
+    public static void encrypt(File f) {
+        System.out.println("gould encryption");
+        String oKey = generateKeyByFile(f);
+        // TODO : encrypt using key
+    }
+
+    public static void decrypt(File f) {
+        System.out.println("gould decryption");
+        // TODO : decrypt
     }
 
     private static String generateKeyByFile(File f) {
