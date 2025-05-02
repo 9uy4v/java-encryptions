@@ -26,7 +26,6 @@ public class Main extends JFrame {
 		int r0 = ch0.showOpenDialog(this);
 		if (r0 == JFileChooser.APPROVE_OPTION) {
 			File f = ch0.getSelectedFile();
-			EasyEncryption ee = new EasyEncryption();
 
 			switch (response) {
 				case -1:
@@ -34,45 +33,35 @@ public class Main extends JFrame {
 
 				case 0:
 					DijkstraEncryption.encrypt(f);
-
-					menu();
 					break;
 
 				case 1:
 					DijkstraEncryption.decrypt(f);
-
-					menu();
 					break;
 
 				case 2:
 					SimEnryption.encrypt(f);
-
-					menu();
 					break;
 
 				case 3:
 					SimEnryption.decrypt(f);
-
-					menu();
 					break;
 
 				case 4:
 					GouldEncryption.encrypt(f);
-
-					menu();
 					break;
 
 				case 5:
 					GouldEncryption.decrypt(f);
-
-					menu();
 					break;
 
 				default:
 					break;
 			}
+
 		}
 
+		menu();
 	}
 
 	public static void main(String[] args) {
