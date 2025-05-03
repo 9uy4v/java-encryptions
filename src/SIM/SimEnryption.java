@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ public class SimEnryption {
 
     public static void encrypt(File f) {
         System.out.println("SIM encryption");
+
         String oKey = generateKeyByFile(f);
 
         int keySize = oKey.length();
@@ -61,9 +63,9 @@ public class SimEnryption {
         File encryptedFile = new File(f.getParentFile(), "Encrypted" + f.getName());
 
         try (FileOutputStream fos = new FileOutputStream(encryptedFile)) {
-            fos.write(oKey.getBytes());
+            fos.write(oKey.getBytes(StandardCharsets.UTF_8));
 
-            fos.write("\n".getBytes());
+            fos.write((byte) '\n');
 
             fos.write(file);
 
@@ -76,7 +78,63 @@ public class SimEnryption {
 
     public static void decrypt(File f) {
         System.out.println("SIM decryption");
-        // TODO : decrypt
+
+        byte splitChar = (byte) '\n';
+        byte[] file;
+
+        try {
+            file = Files.readAllBytes(f.toPath());
+        } catch (IOException e) {
+            System.out.println("Error reading file : " + e);
+            return;
+        }
+
+        int index;
+        for (index = 0; index < file.length; index++) {
+            if (file[index] == splitChar)
+                break;
+        }
+
+        byte[] byteKey = new byte[index];
+        byte[] fileData = new byte[file.length - 1 - index];
+
+        System.arraycopy(file, 0, byteKey, 0, index);
+        System.arraycopy(file, index + 1, fileData, 0, fileData.length);
+
+        String oKey = new String(byteKey, StandardCharsets.UTF_8);
+        int keySize = oKey.length();
+
+        int baseNum = sumDigits(Integer.parseInt(oKey.substring(0, keySize / 2)));
+        int shuffleNum = sumDigits(Integer.parseInt(oKey.substring(keySize / 2)));
+
+        List<int[]> combs = threeNumSumComb(baseNum);
+        Queue<int[]> shuffledCombs = shuffleCombs(combs, shuffleNum);
+
+        for (int i = 0; i < fileData.length; i++) {
+            int[] comb = shuffledCombs.poll();
+
+            if (comb == null) {
+                System.out.println("Error: comb is null at index " + i);
+                return;
+            }
+
+            fileData[i] ^= comb[0];
+            fileData[i] ^= comb[1];
+            fileData[i] ^= comb[2];
+
+            shuffledCombs.add(comb);
+        }
+
+        File decryptedFile = new File(f.getParentFile(), "Decrypted" + f.getName());
+
+        try (FileOutputStream fos = new FileOutputStream(decryptedFile)) {
+            fos.write(fileData);
+
+        } catch (Exception e) {
+            System.out.println("Error while writing encrypted file : " + e);
+            return;
+        }
+
     }
 
     private static int sumDigits(int num) {
