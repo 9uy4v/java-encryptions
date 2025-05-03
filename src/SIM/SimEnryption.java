@@ -1,10 +1,15 @@
 package SIM;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
 import SIM.models.PlayerCode;
 import SIM.models.SimGraph;
@@ -21,12 +26,99 @@ public class SimEnryption {
     public static void encrypt(File f) {
         System.out.println("SIM encryption");
         String oKey = generateKeyByFile(f);
-        // TODO : encrypt using key
+
+        int keySize = oKey.length();
+
+        int baseNum = sumDigits(Integer.parseInt(oKey.substring(0, keySize / 2)));
+        int shuffleNum = sumDigits(Integer.parseInt(oKey.substring(keySize / 2)));
+
+        List<int[]> combs = threeNumSumComb(baseNum);
+        Queue<int[]> shuffledCombs = shuffleCombs(combs, shuffleNum);
+        byte[] file;
+
+        try {
+            file = Files.readAllBytes(f.toPath());
+        } catch (IOException e) {
+            System.out.println("Error reading file : " + e);
+            return;
+        }
+
+        for (int i = 0; i < file.length; i++) {
+            int[] comb = shuffledCombs.poll();
+
+            if (comb == null) {
+                System.out.println("Error: comb is null at index " + i);
+                return;
+            }
+
+            file[i] ^= comb[0];
+            file[i] ^= comb[1];
+            file[i] ^= comb[2];
+
+            shuffledCombs.add(comb);
+        }
+
+        File encryptedFile = new File(f.getParentFile(), "Encrypted" + f.getName());
+
+        try (FileOutputStream fos = new FileOutputStream(encryptedFile)) {
+            fos.write(oKey.getBytes());
+
+            fos.write("\n".getBytes());
+
+            fos.write(file);
+
+        } catch (Exception e) {
+            System.out.println("Error while writing encrypted file : " + e);
+            return;
+        }
+
     }
 
     public static void decrypt(File f) {
         System.out.println("SIM decryption");
         // TODO : decrypt
+    }
+
+    private static int sumDigits(int num) {
+        int sum = 0;
+        while (num != 0) {
+            sum += num % 10;
+            num /= 10;
+        }
+        return sum;
+    }
+
+    private static Queue<int[]> shuffleCombs(List<int[]> combs, int shuffleNum) {
+        Queue<int[]> result = new LinkedList<int[]>();
+
+        while (!combs.isEmpty()) {
+            for (int i = 0; i < shuffleNum; i++) {
+                int[] temp = result.poll();
+
+                if (temp == null) {
+                    break;
+                }
+
+                result.add(temp);
+            }
+
+            result.add(combs.removeFirst());
+        }
+
+        return result;
+    }
+
+    private static List<int[]> threeNumSumComb(int baseNum) {
+        List<int[]> result = new ArrayList<>();
+
+        for (int i = 0; i <= baseNum / 3; i++) {
+            for (int j = i; j <= (baseNum - i) / 2; j++) {
+                int k = baseNum - i - j;
+                result.add(new int[] { i, j, k });
+            }
+        }
+
+        return result;
     }
 
     private static String generateKeyByFile(File f) {
