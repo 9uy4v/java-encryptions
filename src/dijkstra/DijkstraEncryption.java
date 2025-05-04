@@ -100,7 +100,7 @@ public class DijkstraEncryption {
             byte encryptedByte = fileData[i];
             byte decryptedByte = (byte) (encryptedByte ^ shifting[i % 64]);
             fileData[i] = decryptedByte;
-            shifting[i % 64] += decryptedByte; // update with original (decrypted) byte
+            shifting[i % 64] += decryptedByte;
         }
 
         File decryptedFile = new File(f.getParentFile(), "Decrypted" + f.getName());
