@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Arrays;
 
 import SIM.models.PlayerCode;
 import SIM.models.SimGraph;
@@ -89,19 +90,15 @@ public class SimEnryption {
             return;
         }
 
-        int index;
-        for (index = 0; index < file.length; index++) {
-            if (file[index] == splitChar)
+        int newlineIndex;
+        for (newlineIndex = 0; newlineIndex < file.length; newlineIndex++) {
+            if (file[newlineIndex] == splitChar)
                 break;
         }
 
-        byte[] byteKey = new byte[index];
-        byte[] fileData = new byte[file.length - 1 - index];
+        byte[] fileData = Arrays.copyOfRange(file, newlineIndex + 1, file.length);
 
-        System.arraycopy(file, 0, byteKey, 0, index);
-        System.arraycopy(file, index + 1, fileData, 0, fileData.length);
-
-        String oKey = new String(byteKey, StandardCharsets.UTF_8);
+        String oKey = new String(file, 0, newlineIndex, StandardCharsets.UTF_8);
         int keySize = oKey.length();
 
         int baseNum = sumDigits(Integer.parseInt(oKey.substring(0, keySize / 2)));

@@ -2,6 +2,10 @@ package dijkstra;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.io.DataInputStream;
 import java.util.PriorityQueue;
 
@@ -12,26 +16,100 @@ import java.util.List;
 
 public class DijkstraEncryption {
     public static void main(String[] args) {
-        File f = new File("assets\\test.png");
-        String key = generateKeyByFile(f);
-        System.out.println(key);
+        File f1 = new File("assets\\test.png");
+        encrypt(f1);
+        File f2 = new File("assets\\Encryptedtest.png");
+        decrypt(f2);
     }
 
     public static void encrypt(File f) {
         System.out.println("dijakstra encryption");
 
         String oKey = generateKeyByFile(f);
-        // TODO : encrypt using key
+        byte[] shifting = new byte[64];
+
+        byte[] file;
+
+        try {
+            file = Files.readAllBytes(f.toPath());
+        } catch (IOException e) {
+            System.out.println("Error reading file : " + e);
+            return;
+        }
+
+        for (int i = 0; i < shifting.length; i++) {
+            shifting[i] = (byte) Integer.parseInt(oKey.substring(i, i + 1), 16);
+        }
+
+        for (int i = 0; i < file.length; i++) {
+            byte curByte = file[i];
+            file[i] ^= shifting[i % 64];
+
+            shifting[i % 64] += curByte;
+        }
+
+        File encryptedFile = new File(f.getParentFile(), "Encrypted" + f.getName());
+
+        try (FileOutputStream fos = new FileOutputStream(encryptedFile)) {
+            fos.write(oKey.getBytes(StandardCharsets.UTF_8));
+
+            fos.write((byte) '\n');
+
+            fos.write(file);
+
+        } catch (Exception e) {
+            System.out.println("Error while writing encrypted file : " + e);
+            return;
+        }
     }
 
     public static void decrypt(File f) {
-        System.out.println("dijakstra decryption");
-        String mixedKey; // TODO : first 32 bytes
-        String eKey = generateKeyByFile(f); // TODO : file without first 32 bytes
+        System.out.println("dijkstra decryption");
 
-        // String oKey = (int)mixedKey ^ (int)eKey; // TODO : make this work
+        byte[] file;
+        try {
+            file = Files.readAllBytes(f.toPath());
+        } catch (IOException e) {
+            System.out.println("Error reading file : " + e);
+            return;
+        }
 
-        // TODO : decrypt using original key
+        int newlineIndex = -1;
+        for (int i = 0; i < file.length; i++) {
+            if (file[i] == '\n') {
+                newlineIndex = i;
+                break;
+            }
+        }
+
+        if (newlineIndex == -1 || newlineIndex < 64) {
+            System.out.println("Invalid encrypted file format");
+            return;
+        }
+
+        String oKey = new String(file, 0, newlineIndex, StandardCharsets.UTF_8);
+        byte[] shifting = new byte[64];
+
+        for (int i = 0; i < shifting.length; i++) {
+            shifting[i] = (byte) Integer.parseInt(oKey.substring(i, i + 1), 16);
+        }
+
+        byte[] fileData = Arrays.copyOfRange(file, newlineIndex + 1, file.length);
+
+        for (int i = 0; i < fileData.length; i++) {
+            byte encryptedByte = fileData[i];
+            byte decryptedByte = (byte) (encryptedByte ^ shifting[i % 64]);
+            fileData[i] = decryptedByte;
+            shifting[i % 64] += decryptedByte; // update with original (decrypted) byte
+        }
+
+        File decryptedFile = new File(f.getParentFile(), "Decrypted" + f.getName());
+
+        try (FileOutputStream fos = new FileOutputStream(decryptedFile)) {
+            fos.write(fileData);
+        } catch (Exception e) {
+            System.out.println("Error while writing decrypted file : " + e);
+        }
     }
 
     private static String generateKeyByFile(File f) {
