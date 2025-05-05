@@ -289,7 +289,6 @@ public class DijkstraEncryption {
 /// vertices.
 ///
 /// 3. USE KEY TO ENCRYPT FILE
-/// TODO : think of encryption logic
 ///
 /// 4. GET KEY BY ENCRYPTED FILE
 /// repeat steps 1 and 2 but on the encrypted file.
@@ -298,7 +297,6 @@ public class DijkstraEncryption {
 ///
 /// 5. CONSTRUCT FINAL ENCRYPTED FILE
 /// add the key and file together (maybe in a more complex way than concat)
-/// TODO : order final key and encrypted file
 ///
 /// DECRYPTION LOGIC
 /// 1. GET KEY AND FILE
