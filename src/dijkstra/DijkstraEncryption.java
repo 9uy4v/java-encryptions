@@ -43,8 +43,8 @@ public class DijkstraEncryption {
 
         for (int i = 0; i < file.length; i++) {
             byte curByte = file[i];
-            file[i] ^= shifting[i % 64];
 
+            file[i] ^= shifting[i % 64];
             shifting[i % 64] += curByte;
         }
 
@@ -97,10 +97,8 @@ public class DijkstraEncryption {
         byte[] fileData = Arrays.copyOfRange(file, newlineIndex + 1, file.length);
 
         for (int i = 0; i < fileData.length; i++) {
-            byte encryptedByte = fileData[i];
-            byte decryptedByte = (byte) (encryptedByte ^ shifting[i % 64]);
-            fileData[i] = decryptedByte;
-            shifting[i % 64] += decryptedByte;
+            fileData[i] ^= shifting[i % 64];
+            shifting[i % 64] += fileData[i];
         }
 
         File decryptedFile = new File(f.getParentFile(), "Decrypted" + f.getName());

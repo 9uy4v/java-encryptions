@@ -19,7 +19,7 @@ public class Main extends JFrame {
 				JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
 				new ImageIcon("assets/image.png"), options, options[0]);
 
-		if (response == 6)
+		if (response < 0 || response > 5)
 			System.exit(0);
 
 		JFileChooser ch0 = new JFileChooser();
