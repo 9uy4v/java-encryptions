@@ -3,13 +3,13 @@ package gould;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 
 public class GouldEncryption {
-
-    private static final int CHUNKS = 100;
 
     public static void main(String[] args) {
 
@@ -18,73 +18,127 @@ public class GouldEncryption {
     }
 
     public static boolean encrypt(File f) {
-        byte[] data;
+        String oKey = generateKeyByFile(f);
 
+        byte[] keyMasks = createKeyMasks(oKey);
+
+        byte[] file;
         try {
-            data = Files.readAllBytes(f.toPath());
+            file = Files.readAllBytes(f.toPath());
         } catch (IOException e) {
             System.out.println("Error reading file : " + e);
             return false;
         }
 
-        String eKey = generateKeyByFile(f);
-        int chunkSize = (int) Math.ceil((double) data.length / CHUNKS);
-        byte[][] chunks = new byte[CHUNKS][chunkSize];
+        for (int i = 0; i < file.length; i++) {
+            int noteIndex = i % keyMasks.length;
 
-        // חלוקה לחלקים (החלק האחרון יכול להיות קצר יותר)
-        for (int i = 0; i < CHUNKS; i++) {
-            int start = i * chunkSize;
-            int end = Math.min(start + chunkSize, data.length);
-            int length = end - start;
-            if (length <= 0)
-                break;
-            System.arraycopy(data, start, chunks[i], 0, length);
+            file[i] = (byte) (file[i] ^ keyMasks[noteIndex]);
+
+            rotateKeyMasks(keyMasks, getRotationValue(oKey, i));
         }
 
-        byte[][] encryptedChunks = new byte[CHUNKS][chunkSize];
+        File encryptedFile = new File(f.getParentFile(), "Encrypted" + f.getName());
 
-        for (int i = 0; i < CHUNKS; i++) {
-            // קבלת אינדקס מה-key לפי 3 ספרות רצופות, מחזירה אינדקס בין 0 ל-99 (ל-100 חלקים)
-            int keyIndex = getKeyIndex(i, eKey);
+        try (FileOutputStream fos = new FileOutputStream(encryptedFile)) {
+            fos.write(oKey.getBytes(StandardCharsets.UTF_8));
 
-            // XOR בין החלק הנוכחי לחלק באינדקס keyIndex
-            encryptedChunks[i] = xorChunks(chunks[i], chunks[keyIndex]);
-        }
+            fos.write((byte) '\n');
 
-        // איחוד כל החלקים המוצפנים למערך בייטים אחד
-        int totalLength = data.length;
-        byte[] encryptedData = new byte[totalLength];
-        int pos = 0;
-        for (int i = 0; i < CHUNKS; i++) {
-            int copyLength = Math.min(chunkSize, totalLength - pos);
-            System.arraycopy(encryptedChunks[i], 0, encryptedData, pos, copyLength);
-            pos += copyLength;
+            fos.write(file);
+
+        } catch (Exception e) {
+            System.out.println("Error while writing encrypted file : " + e);
+            return false;
         }
 
         return true;
-
-    }
-
-    private static int getKeyIndex(int chunkNumber, String key) {
-        int start = (chunkNumber * 3) % (key.length() - 2);
-        String part = key.substring(start, start + 3);
-        int idx = Integer.parseInt(part) % CHUNKS; // להבטיח אינדקס בין 0 ל-99
-        return idx;
-    }
-
-    private static byte[] xorChunks(byte[] a, byte[] b) {
-        int length = Math.min(a.length, b.length);
-        byte[] result = new byte[length];
-        for (int i = 0; i < length; i++) {
-            result[i] = (byte) (a[i] ^ b[i]);
-        }
-        return result;
     }
 
     public static boolean decrypt(File f) {
-        System.out.println("gould decryption");
-        // TODO : decrypt
+        System.out.println("Musical Bytes decryption");
+
+        byte splitChar = (byte) '\n';
+        byte[] file;
+
+        try {
+            file = Files.readAllBytes(f.toPath());
+        } catch (IOException e) {
+            System.out.println("Error reading file : " + e);
+            return false;
+        }
+
+        int newlineIndex;
+        for (newlineIndex = 0; newlineIndex < file.length; newlineIndex++) {
+            if (file[newlineIndex] == splitChar)
+                break;
+        }
+
+        byte[] fileData = Arrays.copyOfRange(file, newlineIndex + 1, file.length);
+        String oKey = new String(file, 0, newlineIndex, StandardCharsets.UTF_8);
+
+        byte[] keyMasks = createKeyMasks(oKey);
+
+        for (int i = 0; i < fileData.length; i++) {
+            int noteIndex = i % keyMasks.length;
+
+            fileData[i] = (byte) (fileData[i] ^ keyMasks[noteIndex]);
+
+            rotateKeyMasks(keyMasks, getRotationValue(oKey, i));
+        }
+
+        File decryptedFile = new File(f.getParentFile(), "Decrypted" + f.getName());
+
+        try (FileOutputStream fos = new FileOutputStream(decryptedFile)) {
+            fos.write(fileData);
+        } catch (Exception e) {
+            System.out.println("Error while writing decrypted file : " + e);
+            return false;
+        }
+
         return true;
+    }
+
+    private static byte[] createKeyMasks(String keyString) {
+        byte[] masks = new byte[16];
+
+        StringBuilder digitsOnly = new StringBuilder();
+        for (char c : keyString.toCharArray()) {
+            if (Character.isDigit(c)) {
+                digitsOnly.append(c);
+            }
+        }
+
+        for (int i = 0; i < masks.length; i++) {
+            int pos = (i * 2) % digitsOnly.length();
+            String digitPair;
+            if (pos + 1 < digitsOnly.length()) {
+                digitPair = digitsOnly.substring(pos, pos + 2);
+            } else {
+                digitPair = digitsOnly.substring(pos) + digitsOnly.charAt(0);
+            }
+
+            int maskValue = Integer.parseInt(digitPair) % 256;
+            masks[i] = (byte) maskValue;
+        }
+
+        return masks;
+    }
+
+    private static int getRotationValue(String keyString, int position) {
+        int charIndex = position % keyString.length();
+        char keyChar = keyString.charAt(charIndex);
+
+        return (keyChar % 3) + 1;
+    }
+
+    private static void rotateKeyMasks(byte[] masks, int rotateAmount) {
+        byte[] tempMasks = Arrays.copyOf(masks, masks.length);
+
+        for (int j = 0; j < masks.length; j++) {
+            int newPosition = (j + rotateAmount) % masks.length;
+            masks[newPosition] = tempMasks[j];
+        }
     }
 
     private static String generateKeyByFile(File f) {
