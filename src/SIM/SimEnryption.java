@@ -17,7 +17,7 @@ import SIM.models.PlayerCode;
 import SIM.models.SimGraph;
 
 public class SimEnryption {
-    static int SIZE = 6;
+    private static final int SIZE = 6;
 
     public static void main(String[] args) {
         File f = new File("assets\\test2.pdf");
