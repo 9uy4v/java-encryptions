@@ -4,13 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.DataInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.io.DataInputStream;
-import java.util.PriorityQueue;
 
 import dijkstra.models.*;
 
+import java.util.PriorityQueue;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class DijkstraEncryption {
         decrypt(f2);
     }
 
-    public static void encrypt(File f) {
+    public static boolean encrypt(File f) {
         System.out.println("dijakstra encryption");
 
         String oKey = generateKeyByFile(f);
@@ -34,7 +34,7 @@ public class DijkstraEncryption {
             file = Files.readAllBytes(f.toPath());
         } catch (IOException e) {
             System.out.println("Error reading file : " + e);
-            return;
+            return false;
         }
 
         for (int i = 0; i < shifting.length; i++) {
@@ -56,14 +56,15 @@ public class DijkstraEncryption {
             fos.write((byte) '\n');
 
             fos.write(file);
-
         } catch (Exception e) {
             System.out.println("Error while writing encrypted file : " + e);
-            return;
+            return false;
         }
+
+        return true;
     }
 
-    public static void decrypt(File f) {
+    public static boolean decrypt(File f) {
         System.out.println("dijkstra decryption");
 
         byte[] file;
@@ -71,7 +72,7 @@ public class DijkstraEncryption {
             file = Files.readAllBytes(f.toPath());
         } catch (IOException e) {
             System.out.println("Error reading file : " + e);
-            return;
+            return false;
         }
 
         int newlineIndex = -1;
@@ -84,7 +85,7 @@ public class DijkstraEncryption {
 
         if (newlineIndex == -1 || newlineIndex < 64) {
             System.out.println("Invalid encrypted file format");
-            return;
+            return false;
         }
 
         String oKey = new String(file, 0, newlineIndex, StandardCharsets.UTF_8);
@@ -108,6 +109,8 @@ public class DijkstraEncryption {
         } catch (Exception e) {
             System.out.println("Error while writing decrypted file : " + e);
         }
+
+        return true;
     }
 
     private static String generateKeyByFile(File f) {

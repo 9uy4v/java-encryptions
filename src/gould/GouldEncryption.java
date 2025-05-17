@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
 
-import javax.print.DocFlavor.STRING;
-
 public class GouldEncryption {
 
     private static final int CHUNKS = 100;
@@ -19,14 +17,14 @@ public class GouldEncryption {
         System.err.println(generateKeyByFile(f));
     }
 
-    public static void encrypt(File f) {
+    public static boolean encrypt(File f) {
         byte[] data;
 
         try {
             data = Files.readAllBytes(f.toPath());
         } catch (IOException e) {
             System.out.println("Error reading file : " + e);
-            return;
+            return false;
         }
 
         String eKey = generateKeyByFile(f);
@@ -63,6 +61,8 @@ public class GouldEncryption {
             pos += copyLength;
         }
 
+        return true;
+
     }
 
     private static int getKeyIndex(int chunkNumber, String key) {
@@ -81,9 +81,10 @@ public class GouldEncryption {
         return result;
     }
 
-    public static void decrypt(File f) {
+    public static boolean decrypt(File f) {
         System.out.println("gould decryption");
         // TODO : decrypt
+        return true;
     }
 
     private static String generateKeyByFile(File f) {
