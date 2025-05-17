@@ -25,7 +25,7 @@ public class SimEnryption {
         System.out.println(generateKeyByFile(f));
     }
 
-    public static void encrypt(File f) {
+    public static boolean encrypt(File f) {
         System.out.println("SIM encryption");
 
         String oKey = generateKeyByFile(f);
@@ -43,7 +43,7 @@ public class SimEnryption {
             file = Files.readAllBytes(f.toPath());
         } catch (IOException e) {
             System.out.println("Error reading file : " + e);
-            return;
+            return false;
         }
 
         for (int i = 0; i < file.length; i++) {
@@ -51,7 +51,7 @@ public class SimEnryption {
 
             if (comb == null) {
                 System.out.println("Error: comb is null at index " + i);
-                return;
+                return false;
             }
 
             file[i] ^= comb[0];
@@ -72,12 +72,13 @@ public class SimEnryption {
 
         } catch (Exception e) {
             System.out.println("Error while writing encrypted file : " + e);
-            return;
+            return false;
         }
 
+        return true;
     }
 
-    public static void decrypt(File f) {
+    public static boolean decrypt(File f) {
         System.out.println("SIM decryption");
 
         byte splitChar = (byte) '\n';
@@ -87,7 +88,7 @@ public class SimEnryption {
             file = Files.readAllBytes(f.toPath());
         } catch (IOException e) {
             System.out.println("Error reading file : " + e);
-            return;
+            return false;
         }
 
         int newlineIndex;
@@ -112,7 +113,7 @@ public class SimEnryption {
 
             if (comb == null) {
                 System.out.println("Error: comb is null at index " + i);
-                return;
+                return false;
             }
 
             fileData[i] ^= comb[0];
@@ -129,9 +130,10 @@ public class SimEnryption {
 
         } catch (Exception e) {
             System.out.println("Error while writing encrypted file : " + e);
-            return;
+            return false;
         }
 
+        return true;
     }
 
     private static int sumDigits(int num) {

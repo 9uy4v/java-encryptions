@@ -12,15 +12,17 @@ public class GouldEncryption {
         System.err.println(generateKeyByFile(f));
     }
 
-    public static void encrypt(File f) {
+    public static boolean encrypt(File f) {
         System.out.println("gould encryption");
         String oKey = generateKeyByFile(f);
         // TODO : encrypt using key
+        return true;
     }
 
-    public static void decrypt(File f) {
+    public static boolean decrypt(File f) {
         System.out.println("gould decryption");
         // TODO : decrypt
+        return true;
     }
 
     private static String generateKeyByFile(File f) {

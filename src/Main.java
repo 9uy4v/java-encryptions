@@ -11,7 +11,7 @@ import gould.GouldEncryption;
 
 public class Main extends JFrame {
 
-	public void menu() {
+	public static void menu() {
 		String[] options = { "Dijkstra's Encryption", "Dijkstra's Decryption", "SIM Encryption", "SIM Decryption",
 				"Gould's Encryption", "Gould's Decryption", "Exit" };
 		int response = JOptionPane.showOptionDialog(null, "Options: ",
@@ -23,40 +23,47 @@ public class Main extends JFrame {
 			System.exit(0);
 
 		JFileChooser ch0 = new JFileChooser();
-		int r0 = ch0.showOpenDialog(this);
+		int r0 = ch0.showOpenDialog(null);
 		if (r0 == JFileChooser.APPROVE_OPTION) {
 			File f = ch0.getSelectedFile();
 
+			boolean success = false;
+
 			switch (response) {
-				case -1:
-					System.exit(0);
 
 				case 0:
-					DijkstraEncryption.encrypt(f);
+					success = DijkstraEncryption.encrypt(f);
 					break;
 
 				case 1:
-					DijkstraEncryption.decrypt(f);
+					success = DijkstraEncryption.decrypt(f);
 					break;
 
 				case 2:
-					SimEnryption.encrypt(f);
+					success = SimEnryption.encrypt(f);
 					break;
 
 				case 3:
-					SimEnryption.decrypt(f);
+					success = SimEnryption.decrypt(f);
 					break;
 
 				case 4:
-					GouldEncryption.encrypt(f);
+					success = GouldEncryption.encrypt(f);
 					break;
 
 				case 5:
-					GouldEncryption.decrypt(f);
+					success = GouldEncryption.decrypt(f);
 					break;
 
 				default:
+					System.exit(0);
 					break;
+			}
+
+			if (success) {
+				showSucess();
+			} else {
+				showError("Encryption/Decryption Failed");
 			}
 
 		}
@@ -64,10 +71,19 @@ public class Main extends JFrame {
 		menu();
 	}
 
-	public static void main(String[] args) {
-		Main m = new Main();
-		m.menu();
+	public static void showError(String message) {
+		JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
+		menu();
+	}
 
+	public static void showSucess() {
+		JOptionPane.showMessageDialog(null, "Encryption/ Decryption successful", "Success",
+				JOptionPane.INFORMATION_MESSAGE);
+		menu();
+	}
+
+	public static void main(String[] args) {
+		menu();
 	}
 
 }
