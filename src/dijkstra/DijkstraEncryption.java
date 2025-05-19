@@ -73,27 +73,19 @@ public class DijkstraEncryption {
             return false;
         }
 
-        int newlineIndex = -1;
-        for (int i = 0; i < file.length; i++) {
-            if (file[i] == '\n') {
-                newlineIndex = i;
-                break;
-            }
-        }
-
-        if (newlineIndex == -1 || newlineIndex < 64) {
+        if (file[64] != '\n') {
             System.out.println("Invalid encrypted file format");
             return false;
         }
 
-        String oKey = new String(file, 0, newlineIndex, StandardCharsets.UTF_8);
+        String oKey = new String(file, 0, 64, StandardCharsets.UTF_8);
         byte[] shifting = new byte[64];
 
         for (int i = 0; i < shifting.length; i++) {
             shifting[i] = (byte) Integer.parseInt(oKey.substring(i, i + 1), 16);
         }
 
-        byte[] fileData = Arrays.copyOfRange(file, newlineIndex + 1, file.length);
+        byte[] fileData = Arrays.copyOfRange(file, 64 + 1, file.length);
 
         for (int i = 0; i < fileData.length; i++) {
             fileData[i] ^= shifting[i % 64];

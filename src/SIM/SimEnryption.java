@@ -48,11 +48,6 @@ public class SimEnryption {
         for (int i = 0; i < file.length; i++) {
             int[] comb = shuffledCombs.poll();
 
-            if (comb == null) {
-                System.out.println("Error: comb is null at index " + i);
-                return false;
-            }
-
             file[i] ^= comb[0];
             file[i] ^= comb[1];
             file[i] ^= comb[2];
@@ -80,7 +75,6 @@ public class SimEnryption {
     public static boolean decrypt(File f) {
         System.out.println("SIM decryption");
 
-        byte splitChar = (byte) '\n';
         byte[] file;
 
         try {
@@ -92,7 +86,7 @@ public class SimEnryption {
 
         int newlineIndex;
         for (newlineIndex = 0; newlineIndex < file.length; newlineIndex++) {
-            if (file[newlineIndex] == splitChar)
+            if (file[newlineIndex] == '\n')
                 break;
         }
 

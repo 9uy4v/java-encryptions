@@ -55,7 +55,6 @@ public class GouldEncryption {
     }
 
     public static boolean decrypt(File f) {
-        byte splitChar = (byte) '\n';
         byte[] file;
 
         try {
@@ -67,7 +66,7 @@ public class GouldEncryption {
 
         int newlineIndex;
         for (newlineIndex = 0; newlineIndex < file.length; newlineIndex++) {
-            if (file[newlineIndex] == splitChar)
+            if (file[newlineIndex] == '\n')
                 break;
         }
 
@@ -111,7 +110,7 @@ public class GouldEncryption {
                 digitPair = key.substring(pos) + key.charAt(0);
             }
 
-            int maskValue = Integer.parseUnsignedInt(digitPair, 16) % 256;
+            int maskValue = Integer.parseUnsignedInt(digitPair, 16);
             masks[i] = (byte) maskValue;
         }
 
