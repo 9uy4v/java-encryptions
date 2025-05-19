@@ -16,10 +16,8 @@ import java.util.List;
 
 public class DijkstraEncryption {
     public static void main(String[] args) {
-        File f1 = new File("assets\\test.png");
-        encrypt(f1);
-        File f2 = new File("assets\\Encryptedtest.png");
-        decrypt(f2);
+        File f = new File("assets\\test.png");
+        System.err.println(generateKeyByFile(f));
     }
 
     public static boolean encrypt(File f) {

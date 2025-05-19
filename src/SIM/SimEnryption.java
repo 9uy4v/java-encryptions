@@ -20,9 +20,8 @@ public class SimEnryption {
     private static final int SIZE = 6;
 
     public static void main(String[] args) {
-        File f = new File("assets\\test2.pdf");
-
-        System.out.println(generateKeyByFile(f));
+        File f = new File("assets\\test.png");
+        System.err.println(generateKeyByFile(f));
     }
 
     public static boolean encrypt(File f) {

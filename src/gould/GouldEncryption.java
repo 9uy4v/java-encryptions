@@ -12,7 +12,6 @@ import java.util.Arrays;
 public class GouldEncryption {
 
     public static void main(String[] args) {
-
         File f = new File("assets\\test.png");
         System.err.println(generateKeyByFile(f));
     }
@@ -31,9 +30,9 @@ public class GouldEncryption {
         }
 
         for (int i = 0; i < file.length; i++) {
-            int noteIndex = i % keyMasks.length;
+            int shuffleIndex = i % keyMasks.length;
 
-            file[i] = (byte) (file[i] ^ keyMasks[noteIndex]);
+            file[i] = (byte) (file[i] ^ keyMasks[shuffleIndex]);
 
             rotateKeyMasks(keyMasks, getRotationValue(oKey, i));
         }
@@ -56,8 +55,6 @@ public class GouldEncryption {
     }
 
     public static boolean decrypt(File f) {
-        System.out.println("Musical Bytes decryption");
-
         byte splitChar = (byte) '\n';
         byte[] file;
 
@@ -80,9 +77,9 @@ public class GouldEncryption {
         byte[] keyMasks = createKeyMasks(oKey);
 
         for (int i = 0; i < fileData.length; i++) {
-            int noteIndex = i % keyMasks.length;
+            int shuffleIndex = i % keyMasks.length;
 
-            fileData[i] = (byte) (fileData[i] ^ keyMasks[noteIndex]);
+            fileData[i] = (byte) (fileData[i] ^ keyMasks[shuffleIndex]);
 
             rotateKeyMasks(keyMasks, getRotationValue(oKey, i));
         }
@@ -99,26 +96,22 @@ public class GouldEncryption {
         return true;
     }
 
-    private static byte[] createKeyMasks(String keyString) {
-        byte[] masks = new byte[16];
-
-        StringBuilder digitsOnly = new StringBuilder();
-        for (char c : keyString.toCharArray()) {
-            if (Character.isDigit(c)) {
-                digitsOnly.append(c);
-            }
-        }
+    private static byte[] createKeyMasks(String key) {
+        byte[] masks = new byte[40];
 
         for (int i = 0; i < masks.length; i++) {
-            int pos = (i * 2) % digitsOnly.length();
             String digitPair;
-            if (pos + 1 < digitsOnly.length()) {
-                digitPair = digitsOnly.substring(pos, pos + 2);
+
+            int pos = (i * 2) % key.length();
+
+            // Key size is NOT constant
+            if (pos + 1 < key.length()) {
+                digitPair = key.substring(pos, pos + 2);
             } else {
-                digitPair = digitsOnly.substring(pos) + digitsOnly.charAt(0);
+                digitPair = key.substring(pos) + key.charAt(0);
             }
 
-            int maskValue = Integer.parseInt(digitPair) % 256;
+            int maskValue = Integer.parseUnsignedInt(digitPair, 16) % 256;
             masks[i] = (byte) maskValue;
         }
 
@@ -155,7 +148,7 @@ public class GouldEncryption {
                 chunkBuffer[index++] = dis.readInt();
             }
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println("Error reading file : " + e);
 
             return null;
         }
@@ -164,7 +157,7 @@ public class GouldEncryption {
             chunkBuffer[i] ^= sequence[i];
         }
 
-        return foldToString(chunkBuffer, 32);
+        return foldToString(chunkBuffer, 8);
     }
 
     private static String foldToString(int[] arr, int size) {
@@ -181,7 +174,7 @@ public class GouldEncryption {
         }
 
         for (int fChunk : buffer) {
-            foldedString.append(fChunk & 0x7FFFFFFF); // & removes any negative values
+            foldedString.append(String.format("%08X", fChunk & 0x7FFFFFFF)); // & removes any negative values
         }
 
         return foldedString.toString();
