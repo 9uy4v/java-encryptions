@@ -5,14 +5,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.DataInputStream;
+
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-
-import dijkstra.models.*;
 
 import java.util.PriorityQueue;
 import java.util.Arrays;
 import java.util.List;
+
+import dijkstra.models.*;
 
 public class DijkstraEncryption {
     public static void main(String[] args) {
